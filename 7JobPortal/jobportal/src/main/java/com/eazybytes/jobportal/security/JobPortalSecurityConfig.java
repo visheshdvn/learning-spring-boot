@@ -6,6 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -59,5 +64,25 @@ public class JobPortalSecurityConfig
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService()
+    {
+        //        var pass1 = passwordEncoder().encode("P@ssw0rd");
+        //        var pass2 = passwordEncoder().encode("P@ssw0rd@123");
+
+        var user1 = User.builder().username("visheshdvn").password(
+                "$2a$10$UIE5Yp4bsegQJKfNSHsQf.hqtM6NzidaGsPFGoOjEHP0csi07No6W").roles("USER").build();
+        var user2 = User.builder().username("admin").password(
+                "$2a$10$7hV/ghYpXns8b.h.AICj9exf9n77uw6iVnADJbmPItDXpzVzJALxy").roles("ADMIN").build();
+
+        return new InMemoryUserDetailsManager(user1, user2);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder()
+    {
+        return new BCryptPasswordEncoder();
     }
 }
