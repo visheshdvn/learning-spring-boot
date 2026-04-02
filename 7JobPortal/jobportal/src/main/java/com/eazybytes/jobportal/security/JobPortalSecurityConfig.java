@@ -33,70 +33,71 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class JobPortalSecurityConfig
 {
 
-    @Qualifier("publicPaths")
-    private final List<String> publicPaths;
+	@Qualifier("publicPaths")
+	private final List<String> publicPaths;
 
-    @Qualifier("securedPaths")
-    private final List<String> securedPaths;
+	@Qualifier("securedPaths")
+	private final List<String> securedPaths;
 
-    @Bean
-    SecurityFilterChain customSecurityFilterChain(HttpSecurity http)
-    {
-        return http.csrf(csrfConfig -> csrfConfig.disable())
-                .cors(corsConfig -> corsConfig.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(
-                        requests -> {
-                            publicPaths.forEach(publicPath -> requests.requestMatchers(publicPath).permitAll());
-                            securedPaths.forEach(securedPath -> requests.requestMatchers(securedPath).authenticated());
-                            requests.anyRequest().denyAll();
-                        }
-                )
-                .addFilterBefore(new JwtTokenValidatorFilter(publicPaths), BasicAuthenticationFilter.class)
-                .formLogin(flc -> flc.disable())
-                .httpBasic(withDefaults())
-                .build();
-    }
+	@Bean
+	SecurityFilterChain customSecurityFilterChain(HttpSecurity http)
+	{
+		return http.csrf(csrfConfig -> csrfConfig.disable())
+		           .cors(corsConfig -> corsConfig.configurationSource(corsConfigurationSource()))
+		           .authorizeHttpRequests(
+						   requests -> {
+							   publicPaths.forEach(publicPath -> requests.requestMatchers(publicPath).permitAll());
+							   securedPaths.forEach(securedPath -> requests.requestMatchers(securedPath)
+					                                                       .authenticated());
+							   requests.anyRequest().denyAll();
+						   }
+				   )
+		           .addFilterBefore(new JwtTokenValidatorFilter(publicPaths), BasicAuthenticationFilter.class)
+		           .formLogin(flc -> flc.disable())
+		           .httpBasic(withDefaults())
+		           .build();
+	}
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource()
-    {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Collections.singletonList("*"));
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource()
+	{
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+		config.setAllowedMethods(Collections.singletonList("*"));
+		config.setAllowedHeaders(Collections.singletonList("*"));
+		config.setAllowCredentials(true);
+		config.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
 
-    @Bean
-    public UserDetailsService userDetailsService()
-    {
-        //        var pass1 = passwordEncoder().encode("P@ssw0rd");
-        //        var pass2 = passwordEncoder().encode("P@ssw0rd@123");
+	@Bean
+	public UserDetailsService userDetailsService()
+	{
+		//        var pass1 = passwordEncoder().encode("P@ssw0rd");
+		//        var pass2 = passwordEncoder().encode("P@ssw0rd@123");
 
-        var user1 = User.builder().username("visheshdvn").password(
-                "$2a$10$UIE5Yp4bsegQJKfNSHsQf.hqtM6NzidaGsPFGoOjEHP0csi07No6W").roles("USER").build();
-        var user2 = User.builder().username("admin").password(
-                "$2a$10$7hV/ghYpXns8b.h.AICj9exf9n77uw6iVnADJbmPItDXpzVzJALxy").roles("ADMIN").build();
+		var user1 = User.builder().username("visheshdvn").password(
+				"$2a$10$UIE5Yp4bsegQJKfNSHsQf.hqtM6NzidaGsPFGoOjEHP0csi07No6W").roles("USER").build();
+		var user2 = User.builder().username("admin").password(
+				"$2a$10$7hV/ghYpXns8b.h.AICj9exf9n77uw6iVnADJbmPItDXpzVzJALxy").roles("ADMIN").build();
 
-        return new InMemoryUserDetailsManager(user1, user2);
-    }
+		return new InMemoryUserDetailsManager(user1, user2);
+	}
 
-    @Bean
-    public AuthenticationManager authenticationManager()
-    {
-        var authenticationProvider = new DaoAuthenticationProvider(userDetailsService());
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(authenticationProvider);
-    }
+	@Bean
+	public AuthenticationManager authenticationManager()
+	{
+		var authenticationProvider = new DaoAuthenticationProvider(userDetailsService());
+		authenticationProvider.setPasswordEncoder(passwordEncoder());
+		return new ProviderManager(authenticationProvider);
+	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder()
-    {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder()
+	{
+		return new BCryptPasswordEncoder();
+	}
 }
