@@ -6,16 +6,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -76,24 +73,8 @@ public class JobPortalSecurityConfig
 	}
 
 	@Bean
-	public UserDetailsService userDetailsService()
+	public AuthenticationManager authenticationManager(AuthenticationProvider authenticationProvider)
 	{
-		//        var pass1 = passwordEncoder().encode("P@ssw0rd");
-		//        var pass2 = passwordEncoder().encode("P@ssw0rd@123");
-
-		var user1 = User.builder().username("visheshdvn").password(
-				"$2a$10$UIE5Yp4bsegQJKfNSHsQf.hqtM6NzidaGsPFGoOjEHP0csi07No6W").roles("USER").build();
-		var user2 = User.builder().username("admin").password(
-				"$2a$10$7hV/ghYpXns8b.h.AICj9exf9n77uw6iVnADJbmPItDXpzVzJALxy").roles("ADMIN").build();
-
-		return new InMemoryUserDetailsManager(user1, user2);
-	}
-
-	@Bean
-	public AuthenticationManager authenticationManager()
-	{
-		var authenticationProvider = new DaoAuthenticationProvider(userDetailsService());
-		authenticationProvider.setPasswordEncoder(passwordEncoder());
 		return new ProviderManager(authenticationProvider);
 	}
 
