@@ -16,6 +16,7 @@ public class PathsConfig
 				"/api/contacts/public",
 				"/api/auth/login/public",
 				"/api/auth/register/public",
+				"/api/companies/public",
 				"/api/swagger-ui.html",
 				"/swagger-ui/**",
 				"/api/v3/api-docs/**",
@@ -29,8 +30,7 @@ public class PathsConfig
 	public List<String> securedPaths()
 	{
 		return List.of(
-				"/api/**",
-				"/api/companies/public"
+				"/api/**"
 		);
 	}
 }
