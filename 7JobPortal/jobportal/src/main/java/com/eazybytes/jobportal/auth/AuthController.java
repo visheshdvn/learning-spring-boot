@@ -11,6 +11,7 @@ import com.eazybytes.jobportal.repository.JobPortalUserRepository;
 import com.eazybytes.jobportal.repository.RoleRepository;
 import com.eazybytes.jobportal.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController
 {
 	//    private final JwtUtil jwtUtil;
@@ -42,10 +44,14 @@ public class AuthController
 	public ResponseEntity<LoginResponseDto> apiLogin(@RequestBody LoginRequestDto loginRequestDto)
 	{
 		try {
+			log.debug("before auth");
+			
 			var resultAuthentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
 					loginRequestDto.username(),
 					loginRequestDto.password()
 			));
+
+			log.debug("after auth");
 
 			String jwtToken = jwtUtil.generateJwtToken(resultAuthentication);
 
